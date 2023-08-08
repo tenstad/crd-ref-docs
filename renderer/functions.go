@@ -58,7 +58,12 @@ func NewFunctions(conf *config.Config) (*Functions, error) {
 }
 
 func (f *Functions) TypeID(t *types.Type) string {
-	return f.SafeID(types.Key(t))
+	id := t.Name
+	if t.Package != "" {
+		id = fmt.Sprintf("%s.%s", t.Package, t.Name)
+	}
+
+	return f.SafeID(id)
 }
 
 func (f *Functions) GroupVersionID(gv types.GroupVersionDetails) string {

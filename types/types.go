@@ -99,6 +99,7 @@ func (k Kind) MarshalJSON() ([]byte, error) {
 
 // Type describes a declared type
 type Type struct {
+	ID             string                   `json:"id"`
 	Name           string                   `json:"name"`
 	Package        string                   `json:"package"`
 	Doc            string                   `json:"doc"`
@@ -112,27 +113,11 @@ type Type struct {
 	References     []*Type                  `json:"-"`              // other types that refer to this type
 }
 
-func (t *Type) Copy() *Type {
-	return &Type{
-		Name:           t.Name,
-		Package:        t.Package,
-		Doc:            t.Doc,
-		GVK:            t.GVK,
-		Kind:           t.Kind,
-		Imported:       t.Imported,
-		UnderlyingType: t.UnderlyingType,
-		KeyType:        t.KeyType,
-		ValueType:      t.ValueType,
-		Fields:         t.Fields,
-		References:     t.References,
-	}
-}
-
 func (t *Type) IsBasic() bool {
 	switch t.Kind {
 	case BasicKind:
 		return true
-	case SliceKind, ArrayKind, PointerKind:
+	case SliceKind, PointerKind:
 		return t.UnderlyingType != nil && t.UnderlyingType.IsBasic()
 	case MapKind:
 		return t.KeyType != nil && t.KeyType.IsBasic() && t.ValueType != nil && t.ValueType.IsBasic()
@@ -286,11 +271,7 @@ func (fields *Fields) inlineType(i int, inlined *Type) {
 
 // Key generates the unique name for the give type.
 func Key(t *Type) string {
-	if t.Package == "" {
-		return t.Name
-	}
-
-	return fmt.Sprintf("%s.%s", t.Package, t.Name)
+	return t.ID
 }
 
 // GroupVersionDetails encapsulates details about a discovered API group.
